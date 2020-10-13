@@ -18,13 +18,16 @@ class GosuExample < Gosu::Window
     if @balls.size < NR_OF_BALLS and rand < 0.01
       @balls << Ball.new(width / 2, 0)
     end
-    @balls.each do |ball|
-      ball.handle_collisions(@balls)
-      ball.bounce_on_floor_if_colliding(height - WALL_HEIGHT)
-      ball.bounce_on_wall_if_colliding(width)
-      ball.fall
-      ball.move
+    threads = @balls.map do |ball|
+      Thread.new do
+        ball.handle_collisions(@balls)
+        ball.bounce_on_floor_if_colliding(height - WALL_HEIGHT)
+        ball.bounce_on_wall_if_colliding(width)
+        ball.fall
+        ball.move
+      end
     end
+    threads.each { |t| t.join }
   end
 
   def draw
