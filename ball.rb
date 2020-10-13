@@ -1,7 +1,9 @@
 class Ball
-  SIZE = 50
-  BUMP_FORCE = 1.0
-  GRAVITY = 0.4
+  SIZE = 30
+  BUMP_FORCE = 0.9
+  GRAVITY = 0.8
+  BOUNCINESS = 0.9
+  FRICTION_FACTOR = 0.99
 
   attr_reader :pos
 
@@ -23,8 +25,8 @@ class Ball
   def bounce_on_floor_if_colliding(floor)
     return if @pos.y + SIZE < floor
 
-    @speed.y = -@speed.y.abs * 0.9 - 1
-    @speed.x *= 0.99
+    @speed.y = -@speed.y.abs * BOUNCINESS - 1
+    @speed.x *= FRICTION_FACTOR
   end
 
   def bounce_on_wall_if_colliding(width)
