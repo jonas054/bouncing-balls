@@ -1,11 +1,11 @@
 class Ball
-  SIZE = 30
-  BUMP_FORCE = 0.9
+  SIZE = 50
+  BUMP_FORCE = 1.2
   GRAVITY = 0.8
   BOUNCINESS = 0.9
   FRICTION_FACTOR = 0.99
 
-  attr_reader :pos
+  attr_reader :pos, :speed
 
   def initialize(x_pos, y_pos)
     @pos = Vector2(x_pos, y_pos)

@@ -5,12 +5,12 @@ module Circle
     draw_circle(center, radius - border_thickness, color)
   end
 
-  def draw_circle(center, radius, color)
-    step = 40 / Math.log(radius)
+  def draw_circle(center, radius, color, degrees=0..360)
+    step = 10
     x1 = center.x
     y1 = center.y
     half_side = Math.sin(step * Math::PI / 360) * radius + 2
-    (0...360).step(step) do |degrees|
+    degrees.step(step) do |degrees|
       rotate(degrees, x1, y1) do
         x2 = x1 + radius
         draw_triangle(x1, y1, color,
