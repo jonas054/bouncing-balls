@@ -1,5 +1,5 @@
 class Vector2
-  def initialize(x, y)
+  def initialize(x, y) # rubocop:disable Naming/MethodParameterName
     @complex = Complex(x, y)
   end
 
@@ -34,6 +34,6 @@ class Vector2
   end
 end
 
-def Vector2(x, y)
+def Vector2(x, y) # rubocop:disable Naming/MethodName, Naming/MethodParameterName
   Vector2.new(x, y)
 end

@@ -27,7 +27,7 @@ class GosuExample < Gosu::Window
         ball.move
       end
     end
-    threads.each { |t| t.join }
+    threads.each(&:join)
   end
 
   def draw
