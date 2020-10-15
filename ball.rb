@@ -33,7 +33,7 @@ class Ball
     return unless @pos.x + SIZE >= width || @pos.x - SIZE < 0
 
     @speed.x = -@speed.x
-    @pos.x += (width/2 - @pos.x) / 200 # Avoid sticking to edge
+    @pos.x += (width / 2 - @pos.x) / 200 # Avoid sticking to edge
   end
 
   def collides_with?(other_ball)

@@ -17,9 +17,7 @@ class GosuExample < Gosu::Window
   end
 
   def update
-    if @balls.size < NR_OF_BALLS and rand < 0.01
-      @balls << Ball.new(width / 2, 0)
-    end
+    @balls << Ball.new(width / 2, 0) if (@balls.size < NR_OF_BALLS) && (rand < 0.01)
     threads = @balls.map do |ball|
       Thread.new do
         ball.handle_collisions(@balls)
@@ -34,8 +32,8 @@ class GosuExample < Gosu::Window
 
   def draw
     draw_rect(0, height - WALL_HEIGHT, width, WALL_HEIGHT, Gosu::Color::GREEN)
-    @balls.each_with_index do |ball, ix|
-      draw_circle(Vector2(ball.pos.x, height - WALL_HEIGHT - Ball::SIZE/2),
+    @balls.each_with_index do |ball, _ix|
+      draw_circle(Vector2(ball.pos.x, height - WALL_HEIGHT - Ball::SIZE / 2),
                   100 * Ball::SIZE / (height - ball.pos.y).abs,
                   Gosu::Color.from_hsv(120, 0.8, 0.5))
     end
@@ -47,8 +45,8 @@ class GosuExample < Gosu::Window
                                                    1),
                               2, Gosu::Color::BLACK)
       @font.draw_text(hue,
-                      ball.pos.x - (hue.to_s.length * FONT_SIZE)/3,
-                      ball.pos.y - FONT_SIZE/2,
+                      ball.pos.x - (hue.to_s.length * FONT_SIZE) / 3,
+                      ball.pos.y - FONT_SIZE / 2,
                       0, 1, 1,
                       Gosu::Color::BLACK)
     end

@@ -5,7 +5,7 @@ module Circle
     draw_circle(center, radius - border_thickness, color)
   end
 
-  def draw_circle(center, radius, color, degrees=0..360)
+  def draw_circle(center, radius, color, degrees = 0..360)
     step = 10
     x1 = center.x
     y1 = center.y
