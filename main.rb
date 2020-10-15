@@ -6,7 +6,7 @@ require './ball'
 class GosuExample < Gosu::Window
   include Circle
 
-  NR_OF_BALLS = 16
+  NR_OF_BALLS = 8
   WALL_HEIGHT = 50
   FONT_SIZE = 40
 
@@ -45,7 +45,7 @@ class GosuExample < Gosu::Window
                                                    1),
                               2, Gosu::Color::BLACK)
       @font.draw_text(hue,
-                      ball.pos.x - (hue.to_s.length * FONT_SIZE) / 3,
+                      ball.pos.x - (hue.to_s.length * FONT_SIZE) / 4,
                       ball.pos.y - FONT_SIZE / 2,
                       0, 1, 1,
                       Gosu::Color::BLACK)
