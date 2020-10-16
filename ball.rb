@@ -17,42 +17,41 @@ class Ball
   end
 
   def handle_collisions(all_balls)
-    all_balls.reject { |b| b.object_id == object_id }.each do |other_ball|
+    all_balls.compact.reject { |b| b.object_id == object_id }.each do |other_ball|
       bump_away_from(other_ball) if collides_with?(other_ball)
     end
   end
 
   def bounce_on_floor_if_colliding(floor)
-    return if @pos.y + SIZE < floor
+    relative_height = @pos.y + SIZE - floor
+    return if relative_height < 0
 
-    @speed.y = -@speed.y.abs * BOUNCINESS - 1
+    @speed.y = -@speed.y.abs * BOUNCINESS - relative_height / 10
     @speed.x *= FRICTION_FACTOR
   end
 
   def bounce_on_wall_if_colliding(width)
     return unless @pos.x + SIZE >= width || @pos.x - SIZE < 0
 
-    @speed.x = -@speed.x
+    @speed.x = -@speed.x * BOUNCINESS
     @pos.x += (width / 2 - @pos.x) / 200 # Avoid sticking to edge
   end
 
   def collides_with?(other_ball)
-    distance_to(other_ball) < SIZE * 2
+    distance_to(other_ball.pos) < SIZE * 2
   end
 
   def bump_away_from(other_ball)
-    @speed.x += @pos.x < other_ball.pos.x ? -BUMP_FORCE : BUMP_FORCE
-    @speed.y += @pos.y < other_ball.pos.y ? -BUMP_FORCE : BUMP_FORCE
+    @speed += Vector2(@pos.x < other_ball.pos.x ? -BUMP_FORCE : BUMP_FORCE,
+                      @pos.y < other_ball.pos.y ? -BUMP_FORCE : BUMP_FORCE)
   end
 
   def fall
     @speed += GRAVITY
   end
 
-  private
-
-  def distance_to(other_ball)
-    Math.sqrt((@pos.x - other_ball.pos.x).abs**2 +
-              (@pos.y - other_ball.pos.y).abs**2)
+  def distance_to(other_pos)
+    Math.sqrt((@pos.x - other_pos.x).abs**2 +
+              (@pos.y - other_pos.y).abs**2)
   end
 end
