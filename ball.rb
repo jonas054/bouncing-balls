@@ -1,9 +1,9 @@
 class Ball
   SIZE = 50
-  BUMP_FORCE = 1.2
-  GRAVITY = 0.8
+  BUMP_FORCE = 2.6
+  GRAVITY = 0.8i
   BOUNCINESS = 0.9
-  FRICTION_FACTOR = 0.99
+  FRICTION_FACTOR = 0.98
 
   attr_reader :pos, :speed
 
@@ -46,7 +46,7 @@ class Ball
   end
 
   def fall
-    @speed.y += GRAVITY
+    @speed += GRAVITY
   end
 
   private
