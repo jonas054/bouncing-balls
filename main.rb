@@ -14,7 +14,7 @@ class BouncingBalls < Gosu::Window
   def initialize
     super(1500, 800, fullscreen: false)
     @nr_of_balls = 3
-    @balls = [Ball.new(width / 2, 0)]
+    @balls = [new_ball]
     @font = Gosu::Font.new(self, 'Arial', FONT_SIZE)
   end
 
@@ -23,28 +23,16 @@ class BouncingBalls < Gosu::Window
       @pause -= 1
       if @pause == 0
         @pause = nil
-        @balls << Ball.new(width / 2, 0)
+        @nr_of_balls = @nr_of_balls * 4 / 3
+        @balls = [new_ball]
       end
-      return
     elsif @balls.compact.empty?
-      @balls = []
-      @nr_of_balls = @nr_of_balls * 4 / 3
       @pause = 100
-      return
+    else
+      update_balls
+      @crosshair = Vector2(mouse_x, mouse_y)
+      @hit_radius -= 1 if @hit_radius && @hit_radius > 0
     end
-    @balls << Ball.new(width / 2, 0) if (@balls.size < @nr_of_balls) && (rand < 0.01)
-    threads = @balls.compact.map do |ball|
-      Thread.new do
-        ball.handle_collisions(@balls)
-        ball.bounce_on_floor_if_colliding(height - WALL_HEIGHT)
-        ball.bounce_on_wall_if_colliding(width)
-        ball.fall
-        ball.move
-      end
-    end
-    threads.each(&:join)
-    @crosshair = Vector2(mouse_x, mouse_y)
-    @hit_radius -= 1 if @hit_radius && @hit_radius > 0
   end
 
   def button_down(id)
@@ -61,16 +49,56 @@ class BouncingBalls < Gosu::Window
 
   def draw
     draw_rect(0, height - WALL_HEIGHT, width, WALL_HEIGHT, Gosu::Color::GREEN)
+
+    draw_shadows
+
+    draw_rect(0, 0, width, height - WALL_HEIGHT, Gosu::Color::BLUE)
+
+    unless @pause
+      @font.draw_text("#{@balls.compact.size}/#{@nr_of_balls} balls", 30, 30,
+                      0, 1, 1, Gosu::Color::WHITE)
+    end
+
+    draw_balls
+
+    if @pause
+      draw_message
+    else
+      draw_circle(@hit, @hit_radius, Gosu::Color::WHITE) if @hit
+      draw_crosshair if @crosshair
+    end
+  end
+
+  private
+
+  def update_balls
+    @balls << new_ball if (@balls.size < @nr_of_balls) && (rand < 0.01)
+
+    threads = @balls.compact.map do |ball|
+      Thread.new do
+        ball.handle_collisions(@balls)
+        ball.bounce_on_floor_if_colliding(height - WALL_HEIGHT)
+        ball.bounce_on_wall_if_colliding(width)
+        ball.fall
+        ball.move
+      end
+    end
+    threads.each(&:join)
+  end
+
+  def new_ball
+    Ball.new(width / 2, 0)
+  end
+
+  def draw_shadows
     @balls.compact.each do |ball|
       draw_circle(Vector2(ball.pos.x, height - WALL_HEIGHT - Ball::SIZE / 2),
                   500 * Ball::SIZE / (1.5 * height - ball.pos.y),
                   Gosu::Color.from_hsv(120, 0.8, 0.5))
     end
-    draw_rect(0, 0, width, height - WALL_HEIGHT, Gosu::Color::BLUE)
-    unless @pause
-      @font.draw_text("#{@balls.compact.size}/#{@nr_of_balls} balls", 30, 30,
-                      0, 1, 1, Gosu::Color::WHITE)
-    end
+  end
+
+  def draw_balls
     @balls.each_with_index do |ball, ix|
       next unless ball
 
@@ -80,18 +108,17 @@ class BouncingBalls < Gosu::Window
                                                    1),
                               3, Gosu::Color::BLACK)
     end
-    if @pause
-      text = 'Level cleared'
-      @font.draw_text(text,
-                      width / 2 - text.length * FONT_SIZE / 4,
-                      height / 2 - FONT_SIZE / 2,
-                      0, 1, 1,
-                      Gosu::Color::WHITE)
-      return
-    end
-    draw_circle(@hit, @hit_radius, Gosu::Color::WHITE) if @hit
-    return unless @crosshair
+  end
 
+  def draw_message
+    text = 'Level cleared'
+    @font.draw_text(text,
+                    width / 2 - text.length * FONT_SIZE / 4,
+                    height / 2 - FONT_SIZE / 2,
+                    0, 1, 1, Gosu::Color::WHITE)
+  end
+
+  def draw_crosshair
     (1..2).each do |offset|
       draw_cross(@crosshair.x + offset, @crosshair.y + offset,
                  Gosu::Color::BLACK)
