@@ -17,3 +17,6 @@ Naming/MethodParameterName:
     - id
     - x
     - y
+
+Layout/LineLength:
+  Max: 100

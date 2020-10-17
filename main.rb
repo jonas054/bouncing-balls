@@ -7,6 +7,7 @@ require './ball'
 class BouncingBalls < Gosu::Window
   include Circle
 
+  WHITE = Gosu::Color::WHITE
   WALL_HEIGHT = 50
   FONT_SIZE = 40
   CROSSHAIR_LENGTH = 20
@@ -55,8 +56,7 @@ class BouncingBalls < Gosu::Window
     draw_rect(0, 0, width, height - WALL_HEIGHT, Gosu::Color::BLUE)
 
     unless @pause
-      @font.draw_text("#{@balls.compact.size}/#{@nr_of_balls} balls", 30, 30,
-                      0, 1, 1, Gosu::Color::WHITE)
+      @font.draw_text("#{@balls.compact.size}/#{@nr_of_balls} balls", 30, 30, 0, 1, 1, WHITE)
     end
 
     draw_balls
@@ -64,7 +64,7 @@ class BouncingBalls < Gosu::Window
     if @pause
       draw_message
     else
-      draw_circle(@hit, @hit_radius, Gosu::Color::WHITE) if @hit
+      draw_circle(@hit, @hit_radius, WHITE) if @hit
       draw_crosshair if @crosshair
     end
   end
@@ -104,9 +104,8 @@ class BouncingBalls < Gosu::Window
 
       hue = ix * 33 % 360
       draw_circle_with_border(ball.pos, Ball::SIZE,
-                              Gosu::Color.from_hsv(hue, ball.pos.y / height,
-                                                   1),
-                              3, Gosu::Color::BLACK)
+                              Gosu::Color.from_hsv(hue, ball.pos.y / height, 1), 3,
+                              Gosu::Color::BLACK)
     end
   end
 
@@ -115,15 +114,14 @@ class BouncingBalls < Gosu::Window
     @font.draw_text(text,
                     width / 2 - text.length * FONT_SIZE / 4,
                     height / 2 - FONT_SIZE / 2,
-                    0, 1, 1, Gosu::Color::WHITE)
+                    0, 1, 1, WHITE)
   end
 
   def draw_crosshair
     (1..2).each do |offset|
-      draw_cross(@crosshair.x + offset, @crosshair.y + offset,
-                 Gosu::Color::BLACK)
+      draw_cross(@crosshair.x + offset, @crosshair.y + offset, Gosu::Color::BLACK)
     end
-    draw_cross(@crosshair.x, @crosshair.y, Gosu::Color::WHITE)
+    draw_cross(@crosshair.x, @crosshair.y, WHITE)
   end
 
   def draw_cross(x, y, color)
