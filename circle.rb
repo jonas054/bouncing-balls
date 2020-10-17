@@ -1,3 +1,4 @@
+# Fixes the problem of not having a draw_circle in Gosu.
 module Circle
   def draw_circle_with_border(center, radius, color, border_thickness,
                               border_color)

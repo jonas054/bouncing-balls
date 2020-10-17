@@ -3,7 +3,8 @@ require './vector2'
 require './circle'
 require './ball'
 
-class GosuExample < Gosu::Window
+# The main class.
+class BouncingBalls < Gosu::Window
   include Circle
 
   WALL_HEIGHT = 50
@@ -47,15 +48,15 @@ class GosuExample < Gosu::Window
   end
 
   def button_down(id)
-    if id == Gosu::MS_LEFT
-      @crosshair = Vector2(mouse_x, mouse_y)
-      @hit = Vector2(mouse_x, mouse_y)
-      @hit_radius = 15
-      hit_ball_ix = (0..@nr_of_balls).find do |ix|
-        @balls[ix] && @balls[ix].distance_to(@crosshair) < Ball::SIZE
-      end
-      @balls[hit_ball_ix] = nil if hit_ball_ix
+    return unless id == Gosu::MS_LEFT
+
+    @crosshair = Vector2(mouse_x, mouse_y)
+    @hit = Vector2(mouse_x, mouse_y)
+    @hit_radius = 15
+    hit_ball_ix = (0..@nr_of_balls).find do |ix|
+      @balls[ix] && @balls[ix].distance_to(@crosshair) < Ball::SIZE
     end
+    @balls[hit_ball_ix] = nil if hit_ball_ix
   end
 
   def draw
@@ -89,13 +90,13 @@ class GosuExample < Gosu::Window
       return
     end
     draw_circle(@hit, @hit_radius, Gosu::Color::WHITE) if @hit
-    if @crosshair
-      (1..2).each do |offset|
-        draw_cross(@crosshair.x + offset, @crosshair.y + offset,
-                   Gosu::Color::BLACK)
-      end
-      draw_cross(@crosshair.x, @crosshair.y, Gosu::Color::WHITE)
+    return unless @crosshair
+
+    (1..2).each do |offset|
+      draw_cross(@crosshair.x + offset, @crosshair.y + offset,
+                 Gosu::Color::BLACK)
     end
+    draw_cross(@crosshair.x, @crosshair.y, Gosu::Color::WHITE)
   end
 
   def draw_cross(x, y, color)
@@ -104,4 +105,4 @@ class GosuExample < Gosu::Window
   end
 end
 
-GosuExample.new.show
+BouncingBalls.new.show

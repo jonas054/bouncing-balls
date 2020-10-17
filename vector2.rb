@@ -1,5 +1,6 @@
+# Represents an (x, y) coordinate.
 class Vector2
-  def initialize(x, y) # rubocop:disable Naming/MethodParameterName
+  def initialize(x, y)
     @complex = Complex(x, y)
   end
 
@@ -34,6 +35,6 @@ class Vector2
   end
 end
 
-def Vector2(x, y) # rubocop:disable Naming/MethodName, Naming/MethodParameterName
+def Vector2(x, y) # rubocop:disable Naming/MethodName
   Vector2.new(x, y)
 end

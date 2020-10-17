@@ -8,3 +8,12 @@ Style/FrozenStringLiteralComment:
 
 Style/NumericPredicate:
   Enabled: false
+
+# Offense count: 2
+# Configuration parameters: MinNameLength, AllowNamesEndingInNumbers, AllowedNames, ForbiddenNames.
+# AllowedNames: at, by, db, id, in, io, ip, of, on, os, pp, to
+Naming/MethodParameterName:
+  AllowedNames:
+    - id
+    - x
+    - y

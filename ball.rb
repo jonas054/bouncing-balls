@@ -1,3 +1,4 @@
+# Represents one of the balls and handles its movement.
 class Ball
   SIZE = 50
   BUMP_FORCE = 2.6
