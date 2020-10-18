@@ -41,17 +41,19 @@ class BouncingBalls < Gosu::Window
 
     @crosshair = Vector2(mouse_x, mouse_y)
     @hit = Vector2(mouse_x, mouse_y)
-    @hit_radius = 15
-    hit_ball_ix = (0..@nr_of_balls).find do |ix|
-      @balls[ix] && @balls[ix].distance_to(@crosshair) < Ball::SIZE
+    (0...@nr_of_balls).each do |ix|
+      next unless @balls[ix]
+      next unless @balls[ix].distance_to(@crosshair) < Ball::SIZE
+
+      @balls[ix] = nil
+      @hit_radius = 15
     end
-    @balls[hit_ball_ix] = nil if hit_ball_ix
   end
 
   def draw
     draw_rect(0, height - WALL_HEIGHT, width, WALL_HEIGHT, Gosu::Color::GREEN)
 
-    draw_shadows
+    @balls.compact.each { |ball| draw_shadow(ball) }
 
     draw_rect(0, 0, width, height - WALL_HEIGHT, Gosu::Color::BLUE)
 
@@ -59,13 +61,13 @@ class BouncingBalls < Gosu::Window
       @font.draw_text("#{@balls.compact.size}/#{@nr_of_balls} balls", 30, 30, 0, 1, 1, WHITE)
     end
 
-    draw_balls
+    @balls.each_with_index.select { |ball, _| ball }.each { |ball, ix| draw_ball(ball, ix) }
 
     if @pause
       draw_message
     else
       draw_circle(@hit, @hit_radius, WHITE) if @hit
-      draw_crosshair if @crosshair
+      draw_crosshair_with_shadow(@crosshair.x, @crosshair.y) if @crosshair
     end
   end
 
@@ -90,23 +92,17 @@ class BouncingBalls < Gosu::Window
     Ball.new(width / 2, 0)
   end
 
-  def draw_shadows
-    @balls.compact.each do |ball|
-      draw_circle(Vector2(ball.pos.x, height - WALL_HEIGHT - Ball::SIZE / 2),
-                  500 * Ball::SIZE / (1.5 * height - ball.pos.y),
-                  Gosu::Color.from_hsv(120, 0.8, 0.5))
-    end
+  def draw_shadow(ball)
+    draw_circle(Vector2(ball.pos.x, height - WALL_HEIGHT - Ball::SIZE / 2),
+                500 * Ball::SIZE / (1.5 * height - ball.pos.y),
+                Gosu::Color.from_hsv(120, 0.8, 0.5))
   end
 
-  def draw_balls
-    @balls.each_with_index do |ball, ix|
-      next unless ball
-
-      hue = ix * 33 % 360
-      draw_circle_with_border(ball.pos, Ball::SIZE,
-                              Gosu::Color.from_hsv(hue, ball.pos.y / height, 1), 3,
-                              Gosu::Color::BLACK)
-    end
+  def draw_ball(ball, index)
+    hue = index * 33 % 360
+    draw_circle_with_border(ball.pos, Ball::SIZE,
+                            Gosu::Color.from_hsv(hue, ball.pos.y / height, 1), 3,
+                            Gosu::Color::BLACK)
   end
 
   def draw_message
@@ -117,14 +113,12 @@ class BouncingBalls < Gosu::Window
                     0, 1, 1, WHITE)
   end
 
-  def draw_crosshair
-    (1..2).each do |offset|
-      draw_cross(@crosshair.x + offset, @crosshair.y + offset, Gosu::Color::BLACK)
-    end
-    draw_cross(@crosshair.x, @crosshair.y, WHITE)
+  def draw_crosshair_with_shadow(x, y)
+    draw_crosshair(x + offset, y + offset, Gosu::Color::BLACK)
+    draw_crosshair(x, @crosshair.y, WHITE)
   end
 
-  def draw_cross(x, y, color)
+  def draw_crosshair(x, y, color)
     draw_line(x, y - CROSSHAIR_LENGTH, color, x, y + CROSSHAIR_LENGTH, color)
     draw_line(x - CROSSHAIR_LENGTH, y, color, x + CROSSHAIR_LENGTH, y, color)
   end
