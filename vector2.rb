@@ -4,6 +4,10 @@ class Vector2
     @complex = Complex(x, y)
   end
 
+  def size
+    @complex.abs
+  end
+
   def x
     @complex.real
   end

@@ -4,13 +4,20 @@ class Ball
   BUMP_FORCE = 2.6
   GRAVITY = 0.8i
   BOUNCINESS = 0.9
-  FRICTION_FACTOR = 0.98
+  FRICTION_FACTOR = 0.99
 
-  attr_reader :pos, :speed
+  attr_reader :pos, :speed, :points
 
   def initialize(x_pos, y_pos)
     @pos = Vector2(x_pos, y_pos)
-    @speed = Vector2(rand(-2.0..2), 0)
+    until @speed && @speed.size > BouncingBalls::MOVEMENT_THRESHOLD
+      @speed = Vector2(rand(-2.0..2), rand(0..1))
+    end
+    @points = rand(-50..50) until @points&.nonzero?
+  end
+
+  def bottom_y
+    @pos.y + Ball::SIZE
   end
 
   def move
