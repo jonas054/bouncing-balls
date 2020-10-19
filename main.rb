@@ -46,7 +46,7 @@ class BouncingBalls < Gosu::Window
     elsif @balls.compact.empty? ||
           @score != 0 && @balls.compact.map(&:points).all?(&:negative?)
       @pause = Time.now
-    elsif @balls.compact.all? { |ball| ball.bottom_y >= height - WALL_HEIGHT} &&
+    elsif @balls.compact.all? { |ball| ball.bottom_y >= height - WALL_HEIGHT } &&
           @balls.compact.inject(0) { |acc, ball| acc + ball.speed.size } < MOVEMENT_THRESHOLD
       @pause = Time.now
       @too_slow = true
@@ -92,7 +92,7 @@ class BouncingBalls < Gosu::Window
     elsif @pause
       draw_message('Level cleared')
     else
-      @balls.each_with_index.select { |ball, _| ball }.each { |ball, ix| draw_ball(ball, ix) }
+      @balls.compact.each { |ball| draw_ball(ball) }
     end
   end
 
@@ -117,14 +117,14 @@ class BouncingBalls < Gosu::Window
     end
     threads.each(&:join)
 
-    (0...@balls.size).each do |ix|
+    @balls.each_index do |ix|
       ball = @balls[ix]
-      if ball && ball.pos.y > height
-        @score += ball.points
-        sound = ball.points < 0 ? @bad_sound : @good_sound
-        sound.play
-        @balls[ix] = nil
-      end
+      next unless ball && ball.pos.y > height
+
+      @score += ball.points
+      sound = ball.points < 0 ? @bad_sound : @good_sound
+      sound.play
+      @balls[ix] = nil
     end
   end
 
@@ -138,13 +138,13 @@ class BouncingBalls < Gosu::Window
                 Gosu::Color.from_hsv(120, 0.8, 0.5))
   end
 
-  def draw_ball(ball, index)
+  def draw_ball(ball)
     color = ball.points > 0 ? Gosu::Color::GREEN : Gosu::Color::RED
     draw_circle_with_border(ball.pos, Ball::SIZE, color, 3, Gosu::Color::BLACK)
     text = ball.points.to_s
     @font.draw_text(text,
                     ball.pos.x - (text.length * FONT_SIZE) / 4,
-                    ball.pos.y - FONT_SIZE/2,
+                    ball.pos.y - FONT_SIZE / 2,
                     0, 1, 1,
                     Gosu::Color::BLACK)
   end
