@@ -161,9 +161,10 @@ class BouncingBalls < Gosu::Window
   end
 
   def draw_score_texts
-    @font.draw_text("Balls: #{@balls.size - @balls.compact.size} caught, " \
-                    "#{@balls.compact.size} in play, #{@nr_of_balls - @balls.size} waiting",
-                    30, 30, 0, 1, 1, WHITE)
+    text = "Balls: #{@balls.size - @balls.compact.size} caught"
+    waiting = @nr_of_balls - @balls.size
+    text += ", #{waiting} waiting" if waiting > 0
+    @font.draw_text(text, 30, 30, 0, 1, 1, WHITE)
     @font.draw_text("Score #{@score}", 30, 70, 0, 1, 1, WHITE)
     @font.draw_text("Total #{@total}", 30, 110, 0, 1, 1, WHITE)
   end
