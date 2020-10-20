@@ -149,7 +149,8 @@ class BouncingBalls < Gosu::Window
   def draw_ball(ball)
     color = ball.points > 0 ? Gosu::Color::GREEN : Gosu::Color::RED
     draw_circle_with_border(ball.pos, Ball::SIZE, color, 3, Gosu::Color::BLACK)
-    draw_centered_text(ball.points.to_s, ball.pos.x, ball.pos.y, Gosu::Color::BLACK)
+    draw_centered_text(ball.points.to_s, ball.pos.x, ball.pos.y,
+                       ball.points < 0 ? WHITE : Gosu::Color::BLACK)
   end
 
   def draw_hole
