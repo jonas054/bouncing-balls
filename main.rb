@@ -22,8 +22,7 @@ class BouncingBalls < Gosu::Window
 
   def initialize
     super(1500, 800, fullscreen: false)
-    @nr_of_balls = 3
-    @balls = [new_ball]
+    restart
     @font = Gosu::Font.new(self, 'Arial', FONT_SIZE)
     @hole_pos = 50
     @score = 0
@@ -90,7 +89,7 @@ class BouncingBalls < Gosu::Window
   def restart
     @pause = false
     @too_slow = false
-    @nr_of_balls += 1
+    @nr_of_balls = rand(3..10)
     @balls = [new_ball]
   end
 
