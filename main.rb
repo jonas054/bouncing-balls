@@ -8,6 +8,7 @@ class BouncingBalls < Gosu::Window
   include Circle
 
   WHITE = Gosu::Color::WHITE
+  BLACK = Gosu::Color::BLACK
   WALL_HEIGHT = 50
   FONT_SIZE = 40
   HOLE_WIDTH = 200
@@ -148,19 +149,15 @@ class BouncingBalls < Gosu::Window
 
   def draw_ball(ball)
     color = ball.points > 0 ? Gosu::Color::GREEN : Gosu::Color::RED
-    draw_circle_with_border(ball.pos, Ball::SIZE, color, 3, Gosu::Color::BLACK)
+    draw_circle_with_border(ball.pos, Ball::SIZE, color, 3, BLACK)
     draw_centered_text(ball.points.to_s, ball.pos.x, ball.pos.y,
-                       ball.points < 0 ? WHITE : Gosu::Color::BLACK)
+                       ball.points < 0 ? WHITE : BLACK)
   end
 
   def draw_hole
     x1 = @hole_pos
-    x2 = x1 + HOLE_WIDTH
     y1 = height - WALL_HEIGHT
-    green = Gosu::Color::GREEN
-    draw_rect(x1, y1, HOLE_WIDTH, WALL_HEIGHT, Gosu::Color::BLACK)
-    draw_triangle(x1, y1, green, x1, height, green, x1 + 20, height, green)
-    draw_triangle(x2, y1, green, x2, height, green, x2 - 20, height, green)
+    draw_triangle(x1, y1, BLACK, x1 + HOLE_WIDTH, y1, BLACK, x1 + HOLE_WIDTH / 2, y1 + 400, BLACK)
   end
 
   def draw_score_texts
