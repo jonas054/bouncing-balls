@@ -12,7 +12,7 @@ class BouncingBalls < Gosu::Window
   FONT_SIZE = 40
   HOLE_WIDTH = 200
   MOVEMENT_THRESHOLD = 0.5
-  MAX_BALLS_IN_PLAY = 10
+  MAX_BALLS_IN_PLAY = 6
   SOUNDS = {
     good: Gosu::Sample.new('message.ogg'),
     bad: Gosu::Sample.new('bell.ogg'),
