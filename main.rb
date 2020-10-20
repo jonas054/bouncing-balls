@@ -14,9 +14,9 @@ class BouncingBalls < Gosu::Window
   MOVEMENT_THRESHOLD = 0.5
   MAX_BALLS_IN_PLAY = 10
   SOUNDS = {
-    good: Gosu::Sample.new('/usr/share/sounds/ubuntu/stereo/message.ogg'),
-    bad: Gosu::Sample.new('/usr/share/sounds/ubuntu/stereo/bell.ogg'),
-    score: Gosu::Sample.new('/usr/share/sounds/ubuntu/stereo/dialog-information.ogg')
+    good: Gosu::Sample.new('message.ogg'),
+    bad: Gosu::Sample.new('bell.ogg'),
+    score: Gosu::Sample.new('dialog-information.ogg')
   }.freeze
 
   def initialize
