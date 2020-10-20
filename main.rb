@@ -13,6 +13,11 @@ class BouncingBalls < Gosu::Window
   HOLE_WIDTH = 200
   MOVEMENT_THRESHOLD = 0.5
   MAX_BALLS_IN_PLAY = 10
+  SOUNDS = {
+    good: Gosu::Sample.new('/usr/share/sounds/ubuntu/stereo/message.ogg'),
+    bad: Gosu::Sample.new('/usr/share/sounds/ubuntu/stereo/bell.ogg'),
+    score: Gosu::Sample.new('/usr/share/sounds/ubuntu/stereo/dialog-information.ogg')
+  }.freeze
 
   def initialize
     super(1500, 800, fullscreen: false)
@@ -23,9 +28,6 @@ class BouncingBalls < Gosu::Window
     @score = 0
     @total = 0
     @pressed_key = {}
-    @good_sound = Gosu::Sample.new('/usr/share/sounds/ubuntu/stereo/message.ogg')
-    @bad_sound = Gosu::Sample.new('/usr/share/sounds/ubuntu/stereo/bell.ogg')
-    @score_sound = Gosu::Sample.new('/usr/share/sounds/ubuntu/stereo/dialog-information.ogg')
   end
 
   def update
@@ -34,15 +36,9 @@ class BouncingBalls < Gosu::Window
         delta = @score / @score.abs
         @total += delta
         @score -= delta
-        @score_sound.play if @total % 5 == 0
+        SOUNDS[:score].play if @total % 5 == 0
       end
-      if @score == 0 && Time.now - @pause > 2
-        @pause = false
-        @too_slow = false
-        @total += @score
-        @nr_of_balls += 1
-        @balls = [new_ball]
-      end
+      restart if @score == 0 && Time.now - @pause > 2
     elsif @balls.compact.empty? ||
           @score != 0 && @balls.compact.map(&:points).all?(&:negative?)
       @pause = Time.now
@@ -53,17 +49,7 @@ class BouncingBalls < Gosu::Window
     else
       update_balls
     end
-    hole_speed = if @pressed_key[Gosu::KB_LEFT]
-                   -1
-                 elsif @pressed_key[Gosu::KB_RIGHT]
-                   1
-                 else
-                   0
-                 end
-    if hole_speed > 0 && @hole_pos <= width - Ball::SIZE ||
-       hole_speed < 0 && @hole_pos + HOLE_WIDTH >= Ball::SIZE
-      @hole_pos += hole_speed * 10
-    end
+    update_hole
   end
 
   def button_down(id)
@@ -100,6 +86,13 @@ class BouncingBalls < Gosu::Window
 
   private
 
+  def restart
+    @pause = false
+    @too_slow = false
+    @nr_of_balls += 1
+    @balls = [new_ball]
+  end
+
   def update_balls
     if @balls.size < @nr_of_balls && @balls.compact.size < MAX_BALLS_IN_PLAY && rand < 0.01
       @balls << new_ball
@@ -124,14 +117,27 @@ class BouncingBalls < Gosu::Window
       next unless ball && ball.pos.y > height
 
       @score += ball.points
-      sound = ball.points < 0 ? @bad_sound : @good_sound
-      sound.play
+      SOUNDS[ball.points < 0 ? :bad : :good].play
       @balls[ix] = nil
     end
   end
 
   def new_ball
     Ball.new(width / 2, 0)
+  end
+
+  def update_hole
+    hole_speed = if @pressed_key[Gosu::KB_LEFT]
+                   -1
+                 elsif @pressed_key[Gosu::KB_RIGHT]
+                   1
+                 else
+                   0
+                 end
+    if hole_speed > 0 && @hole_pos <= width - Ball::SIZE ||
+       hole_speed < 0 && @hole_pos + HOLE_WIDTH >= Ball::SIZE
+      @hole_pos += hole_speed * 10
+    end
   end
 
   def draw_shadow(ball)
@@ -143,22 +149,17 @@ class BouncingBalls < Gosu::Window
   def draw_ball(ball)
     color = ball.points > 0 ? Gosu::Color::GREEN : Gosu::Color::RED
     draw_circle_with_border(ball.pos, Ball::SIZE, color, 3, Gosu::Color::BLACK)
-    text = ball.points.to_s
-    @font.draw_text(text,
-                    ball.pos.x - (text.length * FONT_SIZE) / 4,
-                    ball.pos.y - FONT_SIZE / 2,
-                    0, 1, 1,
-                    Gosu::Color::BLACK)
+    draw_centered_text(ball.points.to_s, ball.pos.x, ball.pos.y, Gosu::Color::BLACK)
   end
 
   def draw_hole
-    draw_rect(@hole_pos, height - WALL_HEIGHT, HOLE_WIDTH, height - WALL_HEIGHT, Gosu::Color::BLACK)
-    draw_triangle(@hole_pos, height - WALL_HEIGHT, Gosu::Color::GREEN,
-                  @hole_pos, height, Gosu::Color::GREEN,
-                  @hole_pos + 20, height, Gosu::Color::GREEN)
-    draw_triangle(@hole_pos + HOLE_WIDTH, height - WALL_HEIGHT, Gosu::Color::GREEN,
-                  @hole_pos + HOLE_WIDTH, height, Gosu::Color::GREEN,
-                  @hole_pos + HOLE_WIDTH - 20, height, Gosu::Color::GREEN)
+    x1 = @hole_pos
+    x2 = x1 + HOLE_WIDTH
+    y1 = height - WALL_HEIGHT
+    green = Gosu::Color::GREEN
+    draw_rect(x1, y1, HOLE_WIDTH, WALL_HEIGHT, Gosu::Color::BLACK)
+    draw_triangle(x1, y1, green, x1, height, green, x1 + 20, height, green)
+    draw_triangle(x2, y1, green, x2, height, green, x2 - 20, height, green)
   end
 
   def draw_score_texts
@@ -170,10 +171,11 @@ class BouncingBalls < Gosu::Window
   end
 
   def draw_message(text)
-    @font.draw_text(text,
-                    width / 2 - text.length * FONT_SIZE / 4,
-                    height / 2 - FONT_SIZE / 2,
-                    0, 1, 1, WHITE)
+    draw_centered_text(text, width / 2, height / 2, WHITE)
+  end
+
+  def draw_centered_text(text, x, y, color)
+    @font.draw_text(text, x - text.length * FONT_SIZE / 4, y - FONT_SIZE / 2, 0, 1, 1, color)
   end
 end
 
