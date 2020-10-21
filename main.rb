@@ -88,6 +88,7 @@ class BouncingBalls < Gosu::Window
   private
 
   def restart
+    @ball_size = rand(35..100)
     @pause = false
     @too_slow = false
     @nr_of_balls = rand(3..10)
@@ -102,8 +103,8 @@ class BouncingBalls < Gosu::Window
     threads = @balls.compact.map do |ball|
       Thread.new do
         ball.handle_collisions(@balls)
-        if ball.pos.x - Ball::SIZE / 2 < @hole_pos ||
-           ball.pos.x + Ball::SIZE / 2 > @hole_pos + HOLE_WIDTH
+        if ball.pos.x - ball.size / 2 < @hole_pos ||
+           ball.pos.x + ball.size / 2 > @hole_pos + HOLE_WIDTH
           ball.bounce_on_floor_if_colliding(height - WALL_HEIGHT)
         end
         ball.bounce_on_wall_if_colliding(width)
@@ -124,7 +125,7 @@ class BouncingBalls < Gosu::Window
   end
 
   def new_ball
-    Ball.new(width / 2, 0)
+    Ball.new(width / 2, 0, @ball_size)
   end
 
   def update_hole
@@ -135,21 +136,21 @@ class BouncingBalls < Gosu::Window
                  else
                    0
                  end
-    if hole_speed > 0 && @hole_pos <= width - Ball::SIZE ||
-       hole_speed < 0 && @hole_pos + HOLE_WIDTH >= Ball::SIZE
+    if hole_speed > 0 && @hole_pos <= width - @ball_size ||
+       hole_speed < 0 && @hole_pos + HOLE_WIDTH >= @ball_size
       @hole_pos += hole_speed * 10
     end
   end
 
   def draw_shadow(ball)
-    draw_circle(Vector2(ball.pos.x, height - WALL_HEIGHT - Ball::SIZE / 2),
-                500 * Ball::SIZE / (1.5 * height - ball.pos.y),
+    draw_circle(Vector2(ball.pos.x, height - WALL_HEIGHT - @ball_size / 2),
+                500 * @ball_size / (1.5 * height - ball.pos.y),
                 Gosu::Color.from_hsv(120, 0.8, 0.5))
   end
 
   def draw_ball(ball)
     color = ball.points > 0 ? Gosu::Color::GREEN : Gosu::Color::RED
-    draw_circle_with_border(ball.pos, Ball::SIZE, color, 3, BLACK)
+    draw_circle_with_border(ball.pos, @ball_size, color, 3, BLACK)
     draw_centered_text(ball.points.to_s, ball.pos.x, ball.pos.y,
                        ball.points < 0 ? WHITE : BLACK)
   end
