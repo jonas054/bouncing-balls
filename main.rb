@@ -103,10 +103,7 @@ class BouncingBalls < Gosu::Window
     threads = @balls.compact.map do |ball|
       Thread.new do
         ball.handle_collisions(@balls)
-        if ball.pos.x - ball.size / 2 < @hole_pos ||
-           ball.pos.x + ball.size / 2 > @hole_pos + HOLE_WIDTH
-          ball.bounce_on_floor_if_colliding(height - WALL_HEIGHT)
-        end
+        ball.bounce_on_floor_if_colliding(height - WALL_HEIGHT) unless in_hole?(ball.pos.x)
         ball.bounce_on_wall_if_colliding(width)
         ball.fall
         ball.move
@@ -122,6 +119,10 @@ class BouncingBalls < Gosu::Window
       SOUNDS[ball.points < 0 ? :bad : :good].play
       @balls[ix] = nil
     end
+  end
+
+  def in_hole?(ball_x)
+    ball_x - @ball_size / 2 >= @hole_pos && ball_x + @ball_size / 2 <= @hole_pos + HOLE_WIDTH
   end
 
   def new_ball
