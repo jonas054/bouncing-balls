@@ -17,8 +17,7 @@ class BouncingBalls < Gosu::Window
   SOUNDS = {
     good: Gosu::Sample.new('message.ogg'),
     bad: Gosu::Sample.new('bell.ogg'),
-    score: Gosu::Sample.new('dialog-information.ogg'),
-    bounce: Gosu::Sample.new('nomail.wav')
+    score: Gosu::Sample.new('dialog-information.ogg')
   }.freeze
 
   def initialize
