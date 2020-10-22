@@ -1,11 +1,16 @@
 require 'gosu'
+require 'forwardable'
 require './vector2'
 require './circle'
 require './ball'
+require './keyboard'
 
 # The main class.
 class BouncingBalls < Gosu::Window
   include Circle
+  extend Forwardable
+
+  def_delegators :@keyboard, :button_up, :button_down
 
   WHITE = Gosu::Color::WHITE
   BLACK = Gosu::Color::BLACK
@@ -27,7 +32,7 @@ class BouncingBalls < Gosu::Window
     @hole_pos = 50
     @score = 0
     @total = 0
-    @pressed_key = {}
+    @keyboard = Keyboard.new
   end
 
   def update
@@ -50,20 +55,6 @@ class BouncingBalls < Gosu::Window
       update_balls
     end
     update_hole
-  end
-
-  def button_down(id)
-    case id
-    when Gosu::KB_LEFT, Gosu::KB_A then @pressed_key[Gosu::KB_LEFT] = true
-    when Gosu::KB_RIGHT, Gosu::KB_D then @pressed_key[Gosu::KB_RIGHT] = true
-    end
-  end
-
-  def button_up(id)
-    case id
-    when Gosu::KB_LEFT, Gosu::KB_A then @pressed_key[Gosu::KB_LEFT] = nil
-    when Gosu::KB_RIGHT, Gosu::KB_D then @pressed_key[Gosu::KB_RIGHT] = nil
-    end
   end
 
   def draw
@@ -129,13 +120,9 @@ class BouncingBalls < Gosu::Window
   end
 
   def update_hole
-    hole_speed = if @pressed_key[Gosu::KB_LEFT]
-                   -1
-                 elsif @pressed_key[Gosu::KB_RIGHT]
-                   1
-                 else
-                   0
-                 end
+    hole_speed = 0
+    hole_speed = -1 if @keyboard.pressed?(Gosu::KB_LEFT)
+    hole_speed = 1 if @keyboard.pressed?(Gosu::KB_RIGHT)
     if hole_speed > 0 && @hole_pos <= width - @ball_size ||
        hole_speed < 0 && @hole_pos + HOLE_WIDTH >= @ball_size
       @hole_pos += hole_speed * 10
