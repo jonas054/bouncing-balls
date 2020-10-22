@@ -34,7 +34,8 @@ class Ball
     relative_height = @pos.y + @size - floor
     return if relative_height < 0
 
-    BouncingBalls::SOUNDS[:good].play([@speed.size**2 / 1000.0, 1].min, 5.0 / @size) if @speed.y > 1
+    yield [@speed.size**2 / 1000.0, 1].min, 5.0 / @size if @speed.y > 1
+
     @speed.y = -@speed.y.abs * BOUNCINESS - relative_height / 10
     @speed.x *= FRICTION_FACTOR
   end
