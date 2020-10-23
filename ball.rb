@@ -1,7 +1,6 @@
 # Represents one of the balls and handles its movement.
 class Ball
   BUMP_FORCE = 2.6
-  GRAVITY = 0.8i
   BOUNCINESS = 0.9
   FRICTION_FACTOR = 0.99
 
@@ -56,8 +55,8 @@ class Ball
                       @pos.y < other_ball.pos.y ? -BUMP_FORCE : BUMP_FORCE)
   end
 
-  def fall
-    @speed += GRAVITY
+  def fall(gravity)
+    @speed += gravity * 1i
   end
 
   def distance_to(other_pos)

@@ -28,11 +28,19 @@ class BouncingBalls < Gosu::Window
   def initialize
     super(1500, 800, fullscreen: false)
     restart
+    @gravity = 0.8
     @font = Gosu::Font.new(self, 'Arial', FONT_SIZE)
     @hole_pos = 50
     @score = 0
     @total = 0
-    @keyboard = Keyboard.new
+    @keyboard = Keyboard.new(self)
+  end
+
+  def key_down(str)
+    case str
+    when 'g' then @gravity *= 1.1
+    when 'G' then @gravity *= 0.9
+    end
   end
 
   def update
@@ -98,7 +106,7 @@ class BouncingBalls < Gosu::Window
         end
       end
       ball.bounce_on_wall_if_colliding(width)
-      ball.fall
+      ball.fall(@gravity)
       ball.move
     end
 
@@ -156,6 +164,7 @@ class BouncingBalls < Gosu::Window
     @font.draw_text(text, 30, 30, 0, 1, 1, WHITE)
     @font.draw_text("Score #{@score}", 30, 70, 0, 1, 1, WHITE)
     @font.draw_text("Total #{@total}", 30, 110, 0, 1, 1, WHITE)
+    @font.draw_text("Gravity #{(@gravity * 12.25).round(2)}", width - 230, 30, 0, 1, 1, WHITE)
   end
 
   def draw_message(text)
