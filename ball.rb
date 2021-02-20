@@ -24,7 +24,7 @@ class Ball
   end
 
   def handle_collisions(all_balls)
-    all_balls.compact.reject { |b| b.object_id == object_id }.each do |other_ball|
+    all_balls.compact.reject { _1.object_id == object_id }.each do |other_ball|
       bump_away_from(other_ball) if collides_with?(other_ball)
     end
   end

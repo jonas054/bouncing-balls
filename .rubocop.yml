@@ -19,4 +19,7 @@ Naming/MethodParameterName:
     - y
 
 Layout/LineLength:
-  Max: 100
+  Max: 90
+
+Style/ExplicitBlockArgument:
+  Enabled: false

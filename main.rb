@@ -55,8 +55,9 @@ class BouncingBalls < Gosu::Window
     elsif @balls.compact.empty? ||
           @score != 0 && @balls.compact.map(&:points).all?(&:negative?)
       @pause = Time.now
-    elsif @balls.compact.all? { |ball| ball.bottom_y >= height - WALL_HEIGHT } &&
-          @balls.compact.inject(0) { |acc, ball| acc + ball.speed.size } < MOVEMENT_THRESHOLD
+    elsif @balls.compact.all? { _1.bottom_y >= floor } &&
+          @balls.compact.inject(0) { |acc, ball| acc + ball.speed.size } <
+          MOVEMENT_THRESHOLD
       @pause = Time.now
       @too_slow = true
     else
@@ -66,11 +67,11 @@ class BouncingBalls < Gosu::Window
   end
 
   def draw
-    draw_rect(0, height - WALL_HEIGHT, width, WALL_HEIGHT, Gosu::Color::GREEN)
+    draw_rect(0, floor, width, WALL_HEIGHT, Gosu::Color::GREEN)
 
-    @balls.compact.each { |ball| draw_shadow(ball) } unless @pause
+    each_active_ball { |ball| draw_shadow(ball) } unless @pause
 
-    draw_rect(0, 0, width, height - WALL_HEIGHT, Gosu::Color::BLUE)
+    draw_rect(0, 0, width, floor, Gosu::Color::BLUE)
     draw_hole
     draw_score_texts
 
@@ -79,11 +80,15 @@ class BouncingBalls < Gosu::Window
     elsif @pause
       draw_message('Level cleared')
     else
-      @balls.compact.each { |ball| draw_ball(ball) }
+      each_active_ball { |ball| draw_ball(ball) }
     end
   end
 
   private
+
+  def each_active_ball
+    @balls.compact.each { |ball| yield ball }
+  end
 
   def restart
     @ball_size = rand(35..100)
@@ -94,14 +99,15 @@ class BouncingBalls < Gosu::Window
   end
 
   def update_balls
-    if @balls.size < @nr_of_balls && @balls.compact.size < MAX_BALLS_IN_PLAY && rand < 0.01
+    if @balls.size < @nr_of_balls && @balls.compact.size < MAX_BALLS_IN_PLAY &&
+       rand < 0.01
       @balls << new_ball
     end
 
     @balls.compact.map do |ball|
       ball.handle_collisions(@balls)
       unless in_hole?(ball.pos.x)
-        ball.bounce_on_floor_if_colliding(height - WALL_HEIGHT) do |volume, playback_speed|
+        ball.bounce_on_floor_if_colliding(floor) do |volume, playback_speed|
           SOUNDS[:good].play(volume, playback_speed)
         end
       end
@@ -121,7 +127,8 @@ class BouncingBalls < Gosu::Window
   end
 
   def in_hole?(ball_x)
-    ball_x - @ball_size / 2 >= @hole_pos && ball_x + @ball_size / 2 <= @hole_pos + HOLE_WIDTH
+    ball_x - @ball_size / 2 >= @hole_pos &&
+      ball_x + @ball_size / 2 <= @hole_pos + HOLE_WIDTH
   end
 
   def new_ball
@@ -139,7 +146,7 @@ class BouncingBalls < Gosu::Window
   end
 
   def draw_shadow(ball)
-    draw_circle(Vector2(ball.pos.x, height - WALL_HEIGHT - @ball_size / 2),
+    draw_circle(Vector2(ball.pos.x, floor - @ball_size / 2),
                 500 * @ball_size / (1.5 * height - ball.pos.y),
                 Gosu::Color.from_hsv(120, 0.8, 0.5))
   end
@@ -153,18 +160,31 @@ class BouncingBalls < Gosu::Window
 
   def draw_hole
     x1 = @hole_pos
-    y1 = height - WALL_HEIGHT
-    draw_triangle(x1, y1, BLACK, x1 + HOLE_WIDTH, y1, BLACK, x1 + HOLE_WIDTH / 2, y1 + 400, BLACK)
+    y1 = floor
+    draw_triangle(x1, y1, BLACK,
+                  x1 + HOLE_WIDTH, y1, BLACK,
+                  x1 + HOLE_WIDTH / 2, y1 + 400, BLACK)
   end
 
   def draw_score_texts
-    text = "Balls: #{@balls.size - @balls.compact.size} caught"
+    reset_text_pos
     waiting = @nr_of_balls - @balls.size
+    text = "Balls: #{@balls.size - @balls.compact.size} caught"
     text += ", #{waiting} waiting" if waiting > 0
-    @font.draw_text(text, 30, 30, 0, 1, 1, WHITE)
-    @font.draw_text("Score #{@score}", 30, 70, 0, 1, 1, WHITE)
-    @font.draw_text("Total #{@total}", 30, 110, 0, 1, 1, WHITE)
-    @font.draw_text("Gravity #{(@gravity * 12.25).round(2)}", width - 230, 30, 0, 1, 1, WHITE)
+    draw_text(text, 30)
+    draw_text("Score #{@score}", 30)
+    draw_text("Total #{@total}", 30)
+    reset_text_pos
+    draw_text("Gravity #{(@gravity * 12.25).round(2)}", width - 23 * FONT_SIZE / 4)
+  end
+
+  def reset_text_pos
+    @text_pos = 30
+  end
+
+  def draw_text(text, x)
+    @font.draw_text(text, x, @text_pos, 0, 1, 1, WHITE)
+    @text_pos += FONT_SIZE
   end
 
   def draw_message(text)
@@ -172,7 +192,12 @@ class BouncingBalls < Gosu::Window
   end
 
   def draw_centered_text(text, x, y, color)
-    @font.draw_text(text, x - text.length * FONT_SIZE / 4, y - FONT_SIZE / 2, 0, 1, 1, color)
+    @font.draw_text(text, x - text.length * FONT_SIZE / 4, y - FONT_SIZE / 2, 0, 1, 1,
+                    color)
+  end
+
+  def floor
+    height - WALL_HEIGHT
   end
 end
 
