@@ -52,16 +52,17 @@ class BouncingBalls < Gosu::Window
         SOUNDS[:score].play if @total % 5 == 0
       end
       restart if @score == 0 && Time.now - @pause > 2
-    elsif @balls.compact.empty? ||
-          @score != 0 && @balls.compact.map(&:points).all?(&:negative?)
-      @pause = Time.now
-    elsif @balls.compact.all? { _1.bottom_y >= floor } &&
-          @balls.compact.inject(0) { |acc, ball| acc + ball.speed.size } <
-          MOVEMENT_THRESHOLD
-      @pause = Time.now
-      @too_slow = true
     else
-      update_balls
+      active_balls = @balls.compact
+      if active_balls.empty? || @score != 0 && active_balls.all? { _1.points < 0 }
+        @pause = Time.now
+      elsif active_balls.all? { _1.bottom_y >= floor } &&
+            active_balls.map { _1.speed.size }.sum < MOVEMENT_THRESHOLD
+        @pause = Time.now
+        @too_slow = true
+      else
+        update_balls
+      end
     end
     update_hole
   end
@@ -69,7 +70,7 @@ class BouncingBalls < Gosu::Window
   def draw
     draw_rect(0, floor, width, WALL_HEIGHT, Gosu::Color::GREEN)
 
-    each_active_ball { |ball| draw_shadow(ball) } unless @pause
+    each_active_ball { draw_shadow(_1) } unless @pause
 
     draw_rect(0, 0, width, floor, Gosu::Color::BLUE)
     draw_hole
@@ -80,14 +81,14 @@ class BouncingBalls < Gosu::Window
     elsif @pause
       draw_message('Level cleared')
     else
-      each_active_ball { |ball| draw_ball(ball) }
+      each_active_ball { draw_ball(_1) }
     end
   end
 
   private
 
   def each_active_ball
-    @balls.compact.each { |ball| yield ball }
+    @balls.compact.each { yield _1 }
   end
 
   def restart
