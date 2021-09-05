@@ -14,6 +14,7 @@ class BouncingBalls < Gosu::Window
 
   WHITE = Gosu::Color::WHITE
   BLACK = Gosu::Color::BLACK
+  BLUE = Gosu::Color::BLUE
   WALL_HEIGHT = 50
   FONT_SIZE = 40
   HOLE_WIDTH = 200
@@ -72,7 +73,7 @@ class BouncingBalls < Gosu::Window
 
     each_active_ball { draw_shadow(_1) } unless @pause
 
-    draw_rect(0, 0, width, floor, Gosu::Color::BLUE)
+    draw_rect(0, 0, width, floor, BLUE)
     draw_hole
     draw_score_texts
 
@@ -158,12 +159,21 @@ class BouncingBalls < Gosu::Window
                        ball.points < 0 ? WHITE : BLACK)
   end
 
+  # (x1, y1)------(x2, y1)------(x3, y1)  BLUE
+  #        \      /      \     /
+  #        (x4, y2)-----(x5, y2)         BLACK
   def draw_hole
+    slope_width = 50
     x1 = @hole_pos
+    x2 = x1 + HOLE_WIDTH / 2
+    x3 = x1 + HOLE_WIDTH
+    x4 = x1 + slope_width
+    x5 = x1 + HOLE_WIDTH - slope_width
     y1 = floor
-    draw_triangle(x1, y1, BLACK,
-                  x1 + HOLE_WIDTH, y1, BLACK,
-                  x1 + HOLE_WIDTH / 2, y1 + 400, BLACK)
+    y2 = y1 + WALL_HEIGHT
+    draw_triangle(x1, y1, BLUE, x2, y1, BLUE, x4, y2, BLACK) # left
+    draw_triangle(x2, y1, BLUE, x3, y1, BLUE, x5, y2, BLACK) # right
+    draw_triangle(x2, y1, BLUE, x4, y2, BLACK, x5, y2, BLACK) # middle
   end
 
   def draw_score_texts
