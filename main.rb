@@ -117,8 +117,7 @@ class BouncingBalls < Gosu::Window
       ball.move
     end
 
-    @balls.each_index do |ix|
-      ball = @balls[ix]
+    @balls.each_with_index do |ball, ix|
       next unless ball && ball.pos.y > height
 
       @score += ball.points

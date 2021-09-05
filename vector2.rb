@@ -37,6 +37,10 @@ class Vector2
     end
     Vector2.new(@complex.real + other.x, @complex.imag + other.y)
   end
+
+  def distance_to(other_pos)
+    Math.sqrt((x - other_pos.x).abs**2 + (y - other_pos.y).abs**2)
+  end
 end
 
 def Vector2(x, y) # rubocop:disable Naming/MethodName

@@ -12,7 +12,7 @@ class Ball
     until @speed && @speed.size > BouncingBalls::MOVEMENT_THRESHOLD
       @speed = Vector2(rand(-2.0..2), rand(0..1))
     end
-    @points = rand(-50..50) until @points&.nonzero?
+    @points = rand(1..50) * [-1, 1].sample
   end
 
   def bottom_y
@@ -47,7 +47,7 @@ class Ball
   end
 
   def collides_with?(other_ball)
-    distance_to(other_ball.pos) < @size * 2
+    @pos.distance_to(other_ball.pos) < @size * 2
   end
 
   def bump_away_from(other_ball)
@@ -57,10 +57,5 @@ class Ball
 
   def fall(gravity)
     @speed += gravity * 1i
-  end
-
-  def distance_to(other_pos)
-    Math.sqrt((@pos.x - other_pos.x).abs**2 +
-              (@pos.y - other_pos.y).abs**2)
   end
 end
